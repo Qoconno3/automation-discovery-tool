@@ -8,12 +8,18 @@ matter. Every submission is saved so a backlog of vetted automation candidates b
 
 The process flow is built and shown as an actual diagram (via [React Flow](https://reactflow.dev)),
 not a text blob — you lay out steps as connected boxes on the intake form. The recommendation view then
-shows two diagrams: **Current process** renders those same steps read-only with the recommendation
-overlaid (whole flow outlined green for automate-end-to-end, one node glowing amber with an "Automate
-this step" badge for a single bottleneck, or grayed out for don't-automate), and **Proposed process**
-is a genuinely new flow — not just the original relabeled — showing what the process actually looks
-like afterward: steps the automation removes are gone, new AI/system steps appear, and each remaining
-step is tagged "Automated" or "Manual" so it's clear at a glance what still needs a human.
+shows two diagrams: **Current process** renders those same steps read-only, exactly as submitted — no
+annotation, just the as-is flow for reference. **Proposed process** is a genuinely new flow — not just
+the original relabeled — showing what the process actually looks like after the recommendation is
+applied: steps the automation removes are gone, new AI/system steps appear, and each remaining step is
+tagged "Automated" or "Manual" so it's clear at a glance what still needs a human.
+
+## Try it without installing anything
+
+A static demo (client-side only, no backend, scripted sample data instead of a real LLM) auto-deploys
+to GitHub Pages from `web/` on every push to `main`: **https://qoconno3.github.io/automation-discovery-tool/**.
+History is saved to that browser's `localStorage`, so it won't sync between devices — see
+[Demo mode vs. the real app](#demo-mode-vs-the-real-app) below for what's different from a real deployment.
 
 ## Stack
 
@@ -162,6 +168,28 @@ Then deploy (builds both `web/` and `api/` and pushes them):
 ```bash
 swa deploy --app-location web --api-location api --output-location dist --deployment-token <token>
 ```
+
+## Demo mode vs. the real app
+
+There are two different ways this app runs, and they are not the same thing:
+
+|  | GitHub Pages demo | Real deployment (Azure SWA) |
+|---|---|---|
+| Backend | None — everything runs in the browser | Azure Functions (`api/`) |
+| Recommendations | Scripted sample data only (`web/src/lib/mockScenarios.ts`) | Scripted mock **or** real Azure OpenAI, depending on `USE_MOCK_LLM` |
+| Persistence | Browser `localStorage` — per-device, doesn't sync | Azure Table Storage — shared, durable |
+| Cost | Free | Free-tier SWA + pennies for Storage; Azure OpenAI only if you turn mock mode off |
+| Freeform (non-sample) submissions | Heuristic fallback, clearly labeled as not a real recommendation | Same heuristic in mock mode, or a real model call otherwise |
+
+The demo exists purely so the app is viewable from any machine with zero setup. The mock recommendation
+logic is duplicated on purpose — `web/src/lib/mockScenarios.ts` mirrors `api/src/lib/mockRecommendationClient.ts`
+so the demo needs no server at all. If you change one, consider whether the other should change too;
+they're not automatically kept in sync.
+
+The demo build is triggered by `.github/workflows/deploy-pages.yml` on every push to `main` that touches
+`web/`. To build it locally: `cd web && npm run build:pages` (sets `VITE_DEMO_MODE=true`, which switches
+`web/src/api/client.ts` to `localClient.ts` instead of `remoteClient.ts`, and switches routing from
+`BrowserRouter` to `HashRouter` since GitHub Pages has no server-side rewrite support).
 
 ## Testing without Azure OpenAI (mock mode)
 

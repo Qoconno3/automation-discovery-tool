@@ -1,45 +1,16 @@
-import type { ProcessIntake, ProcessSubmission } from "../types/domain";
+import * as local from "./localClient";
+import * as remote from "./remoteClient";
 
-async function handle<T>(res: Response): Promise<T> {
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error((body as { error?: string }).error ?? `Request failed with ${res.status}`);
-  }
-  return res.json() as Promise<T>;
-}
+// The GitHub Pages demo build has no backend, so it runs entirely against a
+// client-side mock (localClient) instead of the real Functions API.
+export const IS_DEMO_MODE = import.meta.env.VITE_DEMO_MODE === "true";
 
-export function submitProcess(intake: ProcessIntake): Promise<ProcessSubmission> {
-  return fetch("/api/submitProcess", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(intake),
-  }).then((res) => handle<ProcessSubmission>(res));
-}
+const impl = IS_DEMO_MODE ? local : remote;
 
-export function submitFollowup(
-  id: string,
-  answers: Record<string, string>
-): Promise<ProcessSubmission> {
-  return fetch(`/api/submissions/${id}/followup`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ answers }),
-  }).then((res) => handle<ProcessSubmission>(res));
-}
+export const submitProcess = impl.submitProcess;
+export const submitFollowup = impl.submitFollowup;
+export const listSubmissions = impl.listSubmissions;
+export const getSubmission = impl.getSubmission;
+export const listSampleScenarios = impl.listSampleScenarios;
 
-export function listSubmissions(): Promise<ProcessSubmission[]> {
-  return fetch("/api/submissions").then((res) => handle<ProcessSubmission[]>(res));
-}
-
-export function getSubmission(id: string): Promise<ProcessSubmission> {
-  return fetch(`/api/submissions/${id}`).then((res) => handle<ProcessSubmission>(res));
-}
-
-export interface SampleScenario {
-  label: string;
-  intake: ProcessIntake;
-}
-
-export function listSampleScenarios(): Promise<SampleScenario[]> {
-  return fetch("/api/sampleScenarios").then((res) => handle<SampleScenario[]>(res));
-}
+export type { SampleScenario } from "../types/domain";

@@ -83,6 +83,17 @@ export interface AutomationRecommendation {
   reasoning: string;
 }
 
+export type LlmResponse =
+  | {
+      status: "needs_info";
+      partialAssessment: string;
+      questions: FollowupQuestion[];
+    }
+  | {
+      status: "complete";
+      recommendation: AutomationRecommendation;
+    };
+
 export type SubmissionStatus = "awaiting_followup" | "complete";
 
 export interface ProcessSubmission {
@@ -93,4 +104,9 @@ export interface ProcessSubmission {
   conversation: FollowupRound[];
   recommendation: AutomationRecommendation | null;
   pendingQuestions: FollowupQuestion[] | null;
+}
+
+export interface SampleScenario {
+  label: string;
+  intake: ProcessIntake;
 }
