@@ -20,6 +20,26 @@ const REQUIRED_SCALAR_FIELDS: (keyof ProcessIntake)[] = [
   "urgency",
 ];
 
+function isValidBranch(b: unknown): boolean {
+  if (typeof b !== "object" || b === null) return false;
+  const branch = b as { label?: unknown; steps?: unknown };
+  if (typeof branch.label !== "string" || !branch.label.trim()) return false;
+  if (!Array.isArray(branch.steps)) return false;
+  return branch.steps.every((s) => typeof s === "string" && s.trim().length > 0);
+}
+
+function isValidStep(s: unknown): boolean {
+  if (typeof s !== "object" || s === null) return false;
+  const step = s as { label?: unknown; branches?: unknown };
+  if (typeof step.label !== "string" || !step.label.trim()) return false;
+  if (step.branches === undefined) return true;
+  return Array.isArray(step.branches) && step.branches.length >= 2 && step.branches.every(isValidBranch);
+}
+
+function isValidSteps(steps: unknown): boolean {
+  return Array.isArray(steps) && steps.length > 0 && steps.every(isValidStep);
+}
+
 function validateIntake(body: unknown): { intake: ProcessIntake } | { error: string } {
   if (typeof body !== "object" || body === null) {
     return { error: "Request body must be a JSON object" };
@@ -29,7 +49,7 @@ function validateIntake(body: unknown): { intake: ProcessIntake } | { error: str
     const value = record[field];
     return value === undefined || value === null || value === "";
   });
-  if (!Array.isArray(record.steps) || record.steps.length === 0 || record.steps.some((s) => typeof s !== "string" || !s.trim())) {
+  if (!isValidSteps(record.steps)) {
     missing.push("steps");
   }
   if (missing.length > 0) {

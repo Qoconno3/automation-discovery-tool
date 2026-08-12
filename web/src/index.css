@@ -414,6 +414,110 @@ th {
   color: var(--danger);
 }
 
+.flow-step-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.flow-branch-toolbar {
+  display: flex;
+  gap: 0.4rem;
+  padding-left: 2.2rem;
+}
+
+.flow-branch-toolbar-button {
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.flow-branch-toolbar-button:hover {
+  background: var(--surface-2);
+}
+
+.flow-branch-toolbar-button--danger {
+  color: var(--text-muted);
+}
+
+.flow-branch-toolbar-button--danger:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.flow-decision-badge {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.flow-branch-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--surface);
+  border: 1px dashed var(--accent);
+  border-radius: 999px;
+  padding: 0.35rem 0.5rem 0.35rem 0.75rem;
+  width: 380px;
+  max-width: 80vw;
+}
+
+.flow-branch-header--view {
+  border-style: solid;
+}
+
+.flow-branch-header-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.1rem 0;
+}
+
+.flow-branch-header-input:focus {
+  outline: none;
+}
+
+.flow-branch-header-label {
+  flex: 1;
+  min-width: 0;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.flow-branch-add-step {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.7rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.flow-branch-add-step:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 .flow-view-node {
   display: flex;
   align-items: center;

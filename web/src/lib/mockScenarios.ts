@@ -30,11 +30,11 @@ export const SAMPLE_SCENARIOS: MockScenario[] = [
         "AP team manually matches vendor invoices to purchase orders each week before payment can be released.",
       currentTools: "Outlook, Excel, SAP",
       steps: [
-        "Download invoice PDFs from a shared inbox",
-        "Open SAP and pull the matching PO",
-        "Manually compare line items and quantities",
-        "Flag mismatches for manager review",
-        "Approve matches for payment",
+        { label: "Download invoice PDFs from a shared inbox" },
+        { label: "Open SAP and pull the matching PO" },
+        { label: "Manually compare line items and quantities" },
+        { label: "Flag mismatches for manager review" },
+        { label: "Approve matches for payment" },
       ],
       frequency: "weekly",
       volumePerOccurrence: "40 invoices",
@@ -119,10 +119,10 @@ export const SAMPLE_SCENARIOS: MockScenario[] = [
         "Incoming support tickets need to be read and routed to the right team (billing, technical, account management) before anyone can work them.",
       currentTools: "Zendesk, Outlook",
       steps: [
-        "Ticket arrives in Zendesk",
-        "Agent reads it and decides which team it belongs to",
-        "Agent reassigns the ticket to that team's queue",
-        "Team picks it up",
+        { label: "Ticket arrives in Zendesk" },
+        { label: "Agent reads it and decides which team it belongs to" },
+        { label: "Agent reassigns the ticket to that team's queue" },
+        { label: "Team picks it up" },
       ],
       frequency: "daily",
       volumePerOccurrence: "150 tickets",
@@ -201,9 +201,9 @@ export const SAMPLE_SCENARIOS: MockScenario[] = [
         "Occasionally someone emails the office manager asking to book a conference room for a one-off event that doesn't fit the standard calendar booking tool.",
       currentTools: "Outlook, email",
       steps: [
-        "Someone emails asking for a room",
-        "Office manager checks availability",
-        "Office manager replies confirming or suggesting alternatives",
+        { label: "Someone emails asking for a room" },
+        { label: "Office manager checks availability" },
+        { label: "Office manager replies confirming or suggesting alternatives" },
       ],
       frequency: "ad-hoc",
       volumePerOccurrence: "2-3 requests",
@@ -254,11 +254,11 @@ export const SAMPLE_SCENARIOS: MockScenario[] = [
         "When a new vendor is added, several deterministic setup steps happen alongside a compliance document review that requires judgment.",
       currentTools: "SharePoint, Outlook, an internal vendor database",
       steps: [
-        "New vendor record created in SharePoint list",
-        "System sends the vendor a standard document request email",
-        "Vendor uploads compliance documents (insurance certs, W-9, etc)",
-        "Compliance reviews the documents for completeness and red flags",
-        "Vendor record is activated and a welcome email is sent",
+        { label: "New vendor record created in SharePoint list" },
+        { label: "System sends the vendor a standard document request email" },
+        { label: "Vendor uploads compliance documents (insurance certs, W-9, etc)" },
+        { label: "Compliance reviews the documents for completeness and red flags" },
+        { label: "Vendor record is activated and a welcome email is sent" },
       ],
       frequency: "monthly",
       volumePerOccurrence: "15 new vendors",
@@ -348,7 +348,7 @@ export const SAMPLE_SCENARIOS: MockScenario[] = [
       title: "Quarterly compliance report generation",
       description: "Someone pulls together a report for compliance each quarter.",
       currentTools: "various internal systems",
-      steps: ["Gather data from a few places", "Put it into a report"],
+      steps: [{ label: "Gather data from a few places" }, { label: "Put it into a report" }],
       frequency: "quarterly",
       volumePerOccurrence: "1 report",
       timeSpentPerOccurrenceMinutes: 480,
@@ -439,11 +439,11 @@ export const SAMPLE_SCENARIOS: MockScenario[] = [
         "When a customer wants to grant POA authority on their account, a branch employee submits a case in CRM with the POA document attached, then calls deposit operations so a specialist can review it and let the employee know if it's good to go.",
       currentTools: "CRM (case management), phone",
       steps: [
-        "Branch employee submits a case in CRM with the POA document attached",
-        "Branch employee calls deposit ops to flag the new case",
-        "Deposit ops opens the case and reviews the POA document",
-        "Deposit ops adds review notes to the case",
-        "Deposit ops calls or messages the branch employee with the decision",
+        { label: "Branch employee submits a case in CRM with the POA document attached" },
+        { label: "Branch employee calls deposit ops to flag the new case" },
+        { label: "Deposit ops opens the case and reviews the POA document" },
+        { label: "Deposit ops adds review notes to the case" },
+        { label: "Deposit ops calls or messages the branch employee with the decision" },
       ],
       frequency: "daily",
       volumePerOccurrence: "8-10 cases",
@@ -531,13 +531,94 @@ export const SAMPLE_SCENARIOS: MockScenario[] = [
     ],
   },
   {
+    label: "Branching — expense approval routing",
+    intake: {
+      title: "Expense report approval routing",
+      description:
+        "Employees submit expense reports for manager approval; what happens next depends on whether the manager approves or rejects it.",
+      currentTools: "Concur, Outlook",
+      steps: [
+        { label: "Employee submits expense report in Concur" },
+        {
+          label: "Manager reviews the report",
+          branches: [
+            { label: "Approved", steps: ["Finance processes reimbursement"] },
+            { label: "Rejected", steps: ["Employee is notified with the reason"] },
+          ],
+        },
+        { label: "Report status is finalized in Concur" },
+      ],
+      frequency: "weekly",
+      volumePerOccurrence: "25 reports",
+      timeSpentPerOccurrenceMinutes: 8,
+      numberOfPeopleInvolved: 2,
+      painPoints:
+        "Manager approval is a manual gate for every report regardless of size, and simple compliant reports wait in the same queue as ones that actually need scrutiny.",
+      variability: "some exceptions",
+      dataSensitivity: "internal",
+      dataSensitivityNotes: "",
+      hasApiOrIntegrationAccess: "yes",
+      changeFrequency: "changes occasionally",
+      urgency: "low",
+    },
+    script: [
+      {
+        status: "complete",
+        recommendation: {
+          scope: "full",
+          scopeRationale:
+            "The whole routing pattern — check against policy, approve or flag for review, notify — is well-defined and repeatable regardless of which branch a given report takes.",
+          approach: "classic",
+          approachRationale:
+            "This is rule-based policy matching (spending limits, receipt requirements, category rules), not judgment over unstructured content — deterministic automation handles it more reliably and auditably than an AI call would.",
+          bottleneckStepIndex: null,
+          proposedFlow: [
+            { label: "Employee submits expense report in Concur", kind: "manual" },
+            { label: "Power Automate checks the report against policy rules", kind: "automated" },
+            { label: "Compliant reports are auto-approved and sent to Finance for reimbursement", kind: "automated" },
+            { label: "Reports outside policy are routed to the manager for review", kind: "manual" },
+          ],
+          recommendedTools: [
+            {
+              tool: "Power Automate",
+              role: "Policy rule engine & routing",
+              rationale:
+                "Concur has a native connector, and the approval logic (amount thresholds, category rules, receipt requirements) is exactly the kind of deterministic branching Power Automate handles well without custom code.",
+            },
+          ],
+          modelGuidance: {
+            tierNeeded: "none",
+            reasoning: "Policy matching is rule-based, not a judgment task — no LLM involved.",
+            estimatedTokenCostNotes: "N/A",
+          },
+          humanInTheLoopNeeded: true,
+          humanInTheLoopNotes:
+            "Reports outside policy thresholds should still reach a manager for judgment — only the clearly-compliant path should auto-approve.",
+          risks: [
+            {
+              risk: "Policy rules can have edge cases (e.g. approved exceptions) that a rigid rule engine misses",
+              severity: "medium",
+              mitigation: "Route anything ambiguous or borderline to the manager rather than trying to encode every exception.",
+            },
+          ],
+          estimatedBuildEffort: "days",
+          roiNotes:
+            "25 reports/week x 8 minutes is modest per-report time, but the real win is compliant reports no longer waiting behind exceptions in the same manual queue.",
+          confidence: "high",
+          reasoning:
+            "A clean rule-based routing case — the branching in the current process (approve vs. reject) maps directly onto a policy-threshold check, which is exactly what deterministic automation is for.",
+        },
+      },
+    ],
+  },
+  {
     label: "Round-cap test — stays vague through 2 follow-ups",
     intake: {
       title: "Persistently ambiguous automation candidate",
       description:
         "A process that stays vague no matter how many clarifying questions are asked — used to test the follow-up round cap.",
       currentTools: "unclear",
-      steps: ["unclear"],
+      steps: [{ label: "unclear" }],
       frequency: "monthly",
       volumePerOccurrence: "unclear",
       timeSpentPerOccurrenceMinutes: 30,
@@ -668,14 +749,17 @@ function buildFallbackResponse(intake: ProcessIntake, roundNumber: number): LlmR
 
   const proposedFlow: ProposedFlowStep[] =
     scope === "skip"
-      ? intake.steps.map((label) => ({ label, kind: "manual" as const }))
+      ? intake.steps.map((step) => ({ label: step.label, kind: "manual" as const }))
       : scope === "partial"
-        ? intake.steps.map((label, i) => ({
-            label: i === bottleneckStepIndex ? `${approach === "ai" ? "Azure OpenAI" : "System"} automatically handles: ${label}` : label,
+        ? intake.steps.map((step, i) => ({
+            label:
+              i === bottleneckStepIndex
+                ? `${approach === "ai" ? "Azure OpenAI" : "System"} automatically handles: ${step.label}`
+                : step.label,
             kind: i === bottleneckStepIndex ? ("automated" as const) : ("manual" as const),
           }))
-        : intake.steps.map((label, i) => ({
-            label,
+        : intake.steps.map((step, i) => ({
+            label: step.label,
             // For a full-scope hybrid guess, alternate automated/manual as a rough placeholder — not real per-step analysis.
             kind: approach === "hybrid" ? (i % 2 === 0 ? ("automated" as const) : ("manual" as const)) : ("automated" as const),
           }));

@@ -9,6 +9,7 @@ import type {
   DataSensitivity,
   Frequency,
   ProcessIntake,
+  ProcessStep,
   Urgency,
   Variability,
 } from "../types/domain";
@@ -25,7 +26,7 @@ const EMPTY_INTAKE: ProcessIntake = {
   title: "",
   description: "",
   currentTools: "",
-  steps: [""],
+  steps: [{ label: "" }],
   frequency: "weekly",
   volumePerOccurrence: "",
   timeSpentPerOccurrenceMinutes: 30,
@@ -39,12 +40,29 @@ const EMPTY_INTAKE: ProcessIntake = {
   urgency: "medium",
 };
 
+function cleanSteps(steps: ProcessStep[]): ProcessStep[] {
+  return steps
+    .map((step) => {
+      const label = step.label.trim();
+      let branches = step.branches;
+      if (branches) {
+        const cleaned = branches
+          .map((b) => ({ label: b.label.trim(), steps: b.steps.map((s) => s.trim()).filter(Boolean) }))
+          .filter((b) => b.label !== "" || b.steps.length > 0);
+        branches = cleaned.length >= 2 ? cleaned : undefined;
+      }
+      return branches ? { label, branches } : { label };
+    })
+    .filter((step) => step.label !== "" || !!step.branches);
+}
+
 export default function IntakeForm() {
   const navigate = useNavigate();
   const [intake, setIntake] = useState<ProcessIntake>(EMPTY_INTAKE);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scenarios, setScenarios] = useState<SampleScenario[]>([]);
+  const [flowResetKey, setFlowResetKey] = useState(0);
 
   useEffect(() => {
     listSampleScenarios()
@@ -66,7 +84,7 @@ export default function IntakeForm() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const cleanedSteps = intake.steps.map((s) => s.trim()).filter(Boolean);
+    const cleanedSteps = cleanSteps(intake.steps);
     if (cleanedSteps.length === 0) {
       setError("Add at least one step to the process flow diagram.");
       return;
@@ -100,7 +118,10 @@ export default function IntakeForm() {
                 key={s.label}
                 type="button"
                 className="sample-button"
-                onClick={() => setIntake(s.intake)}
+                onClick={() => {
+                  setIntake(s.intake);
+                  setFlowResetKey((k) => k + 1);
+                }}
               >
                 {s.label}
               </button>
@@ -148,7 +169,11 @@ export default function IntakeForm() {
           <p className="flow-field-hint">
             Build the flow as a diagram — one box per step, in order. The bottleneck usually hides in here.
           </p>
-          <ProcessFlowBuilder steps={intake.steps} onChange={(steps) => update("steps", steps)} />
+          <ProcessFlowBuilder
+            steps={intake.steps}
+            onChange={(steps) => update("steps", steps)}
+            resetKey={flowResetKey}
+          />
         </div>
       </fieldset>
 

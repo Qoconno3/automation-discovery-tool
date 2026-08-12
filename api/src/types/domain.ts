@@ -8,12 +8,24 @@ export type ChangeFrequency = "stable, rarely changes" | "changes occasionally" 
 
 export type Urgency = "low" | "medium" | "high";
 
+export interface ProcessBranch {
+  /** e.g. "Approved", "Rejected" */
+  label: string;
+  steps: string[];
+}
+
+export interface ProcessStep {
+  label: string;
+  /** Present (length >= 2) means this step is a decision point that fans out into named branches, which implicitly rejoin the main flow at the next step. */
+  branches?: ProcessBranch[];
+}
+
 export interface ProcessIntake {
   title: string;
   description: string;
   currentTools: string;
-  /** Ordered list of short step labels, in the order they happen. */
-  steps: string[];
+  /** Ordered main flow; any step may branch into named sub-paths that rejoin afterward. */
+  steps: ProcessStep[];
   frequency: Frequency;
   volumePerOccurrence: string;
   timeSpentPerOccurrenceMinutes: number;
@@ -68,7 +80,7 @@ export interface AutomationRecommendation {
   scopeRationale: string;
   approach: "classic" | "ai" | "hybrid";
   approachRationale: string;
-  /** 0-based index into the submitted intake.steps array; null unless scope is "partial". */
+  /** 0-based index into the submitted intake.steps main-flow array (not a branch step); null unless scope is "partial". */
   bottleneckStepIndex: number | null;
   /** The process flow as it looks after applying this recommendation — a new sequence, not just the original steps relabeled. */
   proposedFlow: ProposedFlowStep[];

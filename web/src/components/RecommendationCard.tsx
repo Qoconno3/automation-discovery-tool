@@ -1,6 +1,6 @@
 import ProcessFlowDiagram from "./ProcessFlowDiagram";
 import ProposedFlowDiagram from "./ProposedFlowDiagram";
-import type { AutomationRecommendation } from "../types/domain";
+import type { AutomationRecommendation, ProcessStep } from "../types/domain";
 
 const SCOPE_LABEL: Record<AutomationRecommendation["scope"], string> = {
   skip: "Don't automate",
@@ -16,7 +16,7 @@ const APPROACH_LABEL: Record<AutomationRecommendation["approach"], string> = {
 
 interface Props {
   recommendation: AutomationRecommendation;
-  steps: string[];
+  steps: ProcessStep[];
 }
 
 export default function RecommendationCard({ recommendation, steps }: Props) {

@@ -15,10 +15,16 @@ Only recommend from this set. Do not invent tools outside the team's actual stac
 - **Azure OpenAI (raw LLM call, embedded in a Function App or Power Automate flow)** — for tasks that require judgment over unstructured or natural-language input: summarization, classification, extraction, drafting. Not for tasks a deterministic rule or lookup table already solves.
 - **"Don't automate"** — always a valid, explicit answer. State it plainly when the numbers or the variability don't justify a build.
 
+## The submitted process flow can branch
+
+`steps` is the main flow: an ordered array of `{ label, branches? }`. Most steps are plain. A step with `branches` is a decision point — each branch has its own `label` (e.g. "Approved", "Rejected") and its own short `steps: string[]`. All branches implicitly rejoin the main flow at whatever main-flow step comes next (or just end, if the decision is the last step). Branches never nest further.
+
+When a submission branches, factor the decision itself into your reasoning: is it a judgment call (favors AI) or a rule/threshold check (favors classic)? Do the branches lead to genuinely different follow-up work, or just a different notification? Reference the specific branch labels in `scopeRationale`/`approachRationale` when they're relevant to the call.
+
 ## Scope decision: skip / partial / full
 
 - **Skip** when frequency and time-per-occurrence are low, variability is high, and there's no clear repeatable pattern — the build-and-maintain cost won't be paid back.
-- **Partial** when most of the process genuinely requires human judgment or relationship work, but one specific step is a mechanical drag (data entry, copy-paste between systems, manual lookups, formatting). `steps` is submitted as an ordered array — set `bottleneckStepIndex` to that step's 0-based position in the array.
+- **Partial** when most of the process genuinely requires human judgment or relationship work, but one specific step is a mechanical drag (data entry, copy-paste between systems, manual lookups, formatting). `bottleneckStepIndex` is the 0-based position of that step within the top-level `steps` array only — never a position inside a branch. If the real bottleneck lives inside a branch, leave `bottleneckStepIndex` null and describe it in `scopeRationale` instead.
 - **Full** when the entire flow is well-defined, repeatable, and either rule-based or reliably classifiable/extractable by AI end to end.
 
 Base this call on the submitted `frequency`, `volumePerOccurrence`, `timeSpentPerOccurrenceMinutes`, `numberOfPeopleInvolved`, `variability`, and `painPoints` — reference the actual numbers in your rationale.
@@ -35,7 +41,7 @@ Explicit anti-patterns to actively guard against and call out if you see them:
 
 ## Proposed flow — describe the future state, don't just relabel the original
 
-`proposedFlow` is a **new** sequence of steps showing what the process looks like *after* this recommendation is applied — it is not the submitted `steps` array with colors on it. Build it from scratch:
+`proposedFlow` is a **new**, always-flat sequence of steps showing what the process looks like *after* this recommendation is applied — it is not the submitted `steps` array with colors on it, and it stays a single sequence even when the submitted `steps` branches. Build it from scratch:
 
 - Merge, remove, or reorder steps as the recommendation actually implies. A step that only existed to hand work to a human for a task a system now does (e.g. "call ops to flag the case") should usually disappear entirely rather than being relabeled. A judgment step that's now AI-assisted can become one new step (e.g. "Azure OpenAI reviews the document and drafts a recommendation").
 - Mark every step `kind: "automated"` (no human effort required there anymore) or `kind: "manual"` (a human still has to do this). Use `"manual"` for anything you flagged as needing human-in-the-loop in `humanInTheLoopNotes`, and for any step that's inherently a human/external action (e.g. a customer or vendor submitting something) that automation can't remove.

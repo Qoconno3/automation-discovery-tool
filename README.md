@@ -14,6 +14,13 @@ the original relabeled — showing what the process actually looks like after th
 applied: steps the automation removes are gone, new AI/system steps appear, and each remaining step is
 tagged "Automated" or "Manual" so it's clear at a glance what still needs a human.
 
+Any step in the current process can also be a **decision point**: click "+ Add decision" on a step to
+give it two or more named branches (e.g. "Approved" / "Rejected"), each with its own short sequence of
+steps. Branches fan out visually and implicitly rejoin the main flow at whatever step comes next — no
+manual merge-point drawing, and branches can't nest further. The recommendation reasons about the
+decision itself (rule-based threshold vs. real judgment call), but `proposedFlow` always collapses back
+down to a single flat sequence, even when the process you described branches.
+
 ## Try it without installing anything
 
 A static demo (client-side only, no backend, scripted sample data instead of a real LLM) auto-deploys
