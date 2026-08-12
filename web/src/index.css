@@ -1,0 +1,487 @@
+:root {
+  --bg: #0f1115;
+  --surface: #171a21;
+  --surface-2: #1f232c;
+  --border: #2b3040;
+  --text: #e8eaed;
+  --text-muted: #9aa1ae;
+  --accent: #6ea8fe;
+  --danger: #f2545b;
+  --warn: #e0a336;
+  --ok: #4caf7c;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app-shell {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 5rem;
+}
+
+.top-nav {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+}
+
+h1 {
+  font-size: 1.6rem;
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin-top: 0;
+  margin-bottom: 2rem;
+}
+
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+legend {
+  padding: 0 0.5rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+label:last-child {
+  margin-bottom: 0;
+}
+
+input,
+select,
+textarea {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.55rem 0.65rem;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.sample-picker {
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.sample-picker-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+}
+
+.sample-picker-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.sample-button {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.sample-button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.derived-stat {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+button {
+  background: var(--accent);
+  color: #0f1115;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+a,
+.back-link,
+.new-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.error {
+  color: var(--danger);
+}
+
+.followup-card,
+.recommendation-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.partial-assessment {
+  color: var(--text-muted);
+}
+
+.why {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.badge {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.badge.scope-full,
+.badge.approach-ai {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.badge.scope-skip {
+  border-color: var(--text-muted);
+}
+
+.recommendation-card section {
+  margin-bottom: 1.25rem;
+}
+
+.recommendation-card h3 {
+  font-size: 0.95rem;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+
+.muted {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.severity {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background: var(--surface-2);
+}
+
+.severity-high {
+  color: var(--danger);
+}
+
+.severity-medium {
+  color: var(--warn);
+}
+
+.severity-low {
+  color: var(--ok);
+}
+
+.conversation-trail {
+  margin-top: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.qa-pair {
+  margin-bottom: 0.75rem;
+}
+
+.qa-pair .question {
+  color: var(--text-muted);
+  margin: 0 0 0.15rem;
+  font-size: 0.85rem;
+}
+
+.qa-pair .answer {
+  margin: 0;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.5rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.6rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+th {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Process flow diagram (React Flow) */
+
+.flow-field {
+  margin-bottom: 1rem;
+}
+
+.flow-field-label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.flow-field-hint {
+  margin: 0 0 0.6rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.flow-canvas {
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  margin-bottom: 0.6rem;
+  overflow: hidden;
+}
+
+.flow-canvas--view {
+  border-style: solid;
+  margin-bottom: 0;
+}
+
+.flow-empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 0 1rem;
+}
+
+.flow-add-button {
+  background: transparent;
+  border: 1px dashed var(--accent);
+  color: var(--accent);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+}
+
+.flow-add-button:hover {
+  background: var(--surface-2);
+}
+
+.flow-step-node {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.55rem 0.6rem;
+  width: 380px;
+  max-width: 80vw;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.flow-step-number {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #0f1115;
+  font-weight: 700;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flow-step-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 0.88rem;
+  padding: 0.2rem 0;
+}
+
+.flow-step-input:focus {
+  outline: none;
+}
+
+.flow-step-delete {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+}
+
+.flow-step-delete:hover {
+  color: var(--danger);
+}
+
+.flow-view-node {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.55rem 0.75rem;
+  width: 380px;
+  max-width: 80vw;
+  font-size: 0.85rem;
+}
+
+.flow-view-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.flow-view-badge {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+}
+
+.flow-view-node--proposed-automated {
+  border-color: var(--ok);
+  box-shadow: 0 0 0 1px var(--ok), 0 0 14px -4px var(--ok);
+}
+
+.flow-view-node--proposed-automated .flow-view-badge {
+  background: var(--ok);
+  color: #0f1115;
+}
+
+.flow-view-node--proposed-manual .flow-view-badge {
+  background: var(--surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.flow-legend {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.react-flow__edge-path {
+  stroke: var(--border) !important;
+  stroke-width: 2;
+}
+
+.react-flow__handle {
+  width: 6px;
+  height: 6px;
+  background: var(--accent) !important;
+  border: none !important;
+}
+
+.react-flow {
+  background: transparent !important;
+}
+
+.react-flow__controls {
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: none !important;
+}
+
+.react-flow__controls-button {
+  background: var(--surface-2) !important;
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text);
+}
+
+.react-flow__controls-button:hover {
+  background: var(--surface) !important;
+}
+
+.react-flow__controls-button svg {
+  fill: var(--text) !important;
+}
