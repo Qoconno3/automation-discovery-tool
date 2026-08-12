@@ -356,6 +356,21 @@ th {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
+.flow-step-drag-handle {
+  flex-shrink: 0;
+  width: 16px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1;
+  text-align: center;
+  cursor: grab;
+  user-select: none;
+}
+
+.flow-step-drag-handle:active {
+  cursor: grabbing;
+}
+
 .flow-step-number {
   flex-shrink: 0;
   width: 24px;

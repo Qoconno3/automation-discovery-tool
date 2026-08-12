@@ -34,6 +34,9 @@ function StepNode({ data }: NodeProps) {
   return (
     <div className="flow-step-node">
       <Handle type="target" position={Position.Top} />
+      <div className="flow-step-drag-handle" title="Drag to reorder" aria-label={`Drag to reorder step ${d.index + 1}`}>
+        ⠿
+      </div>
       <div className="flow-step-number">{d.index + 1}</div>
       <input
         className="flow-step-input nodrag nopan"
@@ -129,10 +132,28 @@ export default function ProcessFlowBuilder({ steps, onChange }: Props) {
           onEnter: handleInsertAfter,
           onBackspaceEmpty: handleBackspaceEmpty,
         },
-        draggable: false,
+        draggable: true,
+        dragHandle: ".flow-step-drag-handle",
         selectable: false,
       })),
     [steps, handleChangeLabel, handleDelete, handleInsertAfter, handleBackspaceEmpty]
+  );
+
+  const handleNodeDragStop = useCallback(
+    (_event: unknown, node: Node) => {
+      const oldIndex = Number(node.id);
+      const rawIndex = Math.round(node.position.y / ROW_HEIGHT);
+      const newIndex = Math.min(Math.max(rawIndex, 0), steps.length - 1);
+      const next = [...steps];
+      if (newIndex !== oldIndex) {
+        const [moved] = next.splice(oldIndex, 1);
+        next.splice(newIndex, 0, moved);
+      }
+      // Always push a new array reference, even with no reorder, so React Flow
+      // re-syncs this node's position and snaps it back onto the grid.
+      onChange(next);
+    },
+    [steps, onChange]
   );
 
   const edges: Edge[] = useMemo(
@@ -159,7 +180,7 @@ export default function ProcessFlowBuilder({ steps, onChange }: Props) {
             edges={edges}
             nodeTypes={nodeTypes}
             defaultViewport={{ x: 0, y: 20, zoom: 1 }}
-            nodesDraggable={false}
+            nodesDraggable={true}
             nodesConnectable={false}
             elementsSelectable={false}
             zoomOnScroll={false}
@@ -168,6 +189,7 @@ export default function ProcessFlowBuilder({ steps, onChange }: Props) {
             minZoom={0.6}
             maxZoom={1.25}
             proOptions={{ hideAttribution: true }}
+            onNodeDragStop={handleNodeDragStop}
           >
             <Background gap={18} color="var(--border)" />
             <Controls showInteractive={false} position="bottom-right" />
