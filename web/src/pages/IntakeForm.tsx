@@ -93,7 +93,7 @@ export default function IntakeForm() {
 
       {scenarios.length > 0 && (
         <div className="sample-picker">
-          <span className="sample-picker-label">Try a sample (no LLM needed):</span>
+          <span className="sample-picker-label">Demo processes</span>
           <div className="sample-picker-buttons">
             {scenarios.map((s) => (
               <button
