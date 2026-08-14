@@ -3,11 +3,6 @@ import { Link } from "react-router-dom";
 import { listSubmissions } from "../api/client";
 import type { ProcessSubmission } from "../types/domain";
 
-const STATUS_LABEL: Record<ProcessSubmission["status"], string> = {
-  awaiting_followup: "Awaiting your answer",
-  complete: "Complete",
-};
-
 export default function SubmissionHistory() {
   const [submissions, setSubmissions] = useState<ProcessSubmission[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -37,9 +32,7 @@ export default function SubmissionHistory() {
           <tr>
             <th>Title</th>
             <th>Submitted</th>
-            <th>Status</th>
-            <th>Scope</th>
-            <th>Approach</th>
+            <th>Submitted by</th>
           </tr>
         </thead>
         <tbody>
@@ -49,9 +42,9 @@ export default function SubmissionHistory() {
                 <Link to={`/submissions/${s.id}`}>{s.intake.title}</Link>
               </td>
               <td>{new Date(s.submittedAt).toLocaleDateString()}</td>
-              <td>{STATUS_LABEL[s.status]}</td>
-              <td>{s.recommendation?.scope ?? "—"}</td>
-              <td>{s.recommendation?.approach ?? "—"}</td>
+              <td>
+                {s.intake.requesterName} &middot; {s.intake.businessUnit}
+              </td>
             </tr>
           ))}
         </tbody>

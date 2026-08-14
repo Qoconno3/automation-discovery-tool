@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 import { ReactFlow, Background, Controls, Handle, Position } from "@xyflow/react";
-import type { Edge, Node, NodeProps } from "@xyflow/react";
+import type { Edge, Node, NodeProps, ReactFlowInstance } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { computeFlowLayout, mainNodeId, branchHeaderId, branchStepId } from "../lib/flowLayout";
 import type { LayoutNode } from "../lib/flowLayout";
@@ -67,6 +67,15 @@ function MainStepNode({ data }: NodeProps) {
           </button>
         )}
         <Handle type="source" position={Position.Bottom} />
+        <button
+          type="button"
+          className="flow-step-add-dot nodrag nopan"
+          onClick={() => d.onEnter(d.mainIndex)}
+          aria-label={`Add step after step ${d.mainIndex + 1}`}
+          title="Add step here"
+        >
+          +
+        </button>
       </div>
       <div className="flow-branch-toolbar nodrag nopan">
         {d.isDecision ? (
@@ -174,6 +183,15 @@ function BranchStepNode({ data }: NodeProps) {
         ×
       </button>
       <Handle type="source" position={Position.Bottom} />
+      <button
+        type="button"
+        className="flow-step-add-dot nodrag nopan"
+        onClick={() => d.onEnter(d.mainIndex, d.branchIndex, d.subIndex)}
+        aria-label="Add step here"
+        title="Add step here"
+      >
+        +
+      </button>
     </div>
   );
 }
@@ -183,12 +201,11 @@ const nodeTypes = { main: MainStepNode, branchHeader: BranchHeaderNode, branchSt
 interface Props {
   steps: ProcessStep[];
   onChange: (steps: ProcessStep[]) => void;
-  /** Change this (e.g. when loading a sample) to force the canvas to re-fit — `fitView` only runs on mount. */
-  resetKey?: string | number;
 }
 
-export default function ProcessFlowBuilder({ steps, onChange, resetKey }: Props) {
+export default function ProcessFlowBuilder({ steps, onChange }: Props) {
   const [focusPath, setFocusPath] = useState<string | null>(null);
+  const reactFlowRef = useRef<ReactFlowInstance | null>(null);
 
   useEffect(() => {
     if (!focusPath) return;
@@ -196,6 +213,19 @@ export default function ProcessFlowBuilder({ steps, onChange, resetKey }: Props)
     el?.focus();
     setFocusPath(null);
   }, [focusPath, steps]);
+
+  // Fingerprint of the flow's shape (branch/step counts), ignoring label text, so we
+  // only re-fit the viewport on structural changes (add/remove step, branch, decision) —
+  // XYFlow's `fitView` prop only fits once on mount, so without this, growing the flow
+  // (e.g. adding a 3rd/4th decision branch) can leave new content scaled/panned off-screen.
+  const structureKey = useMemo(
+    () => steps.map((s) => (s.branches ? `d${s.branches.map((b) => b.steps.length).join(",")}` : "s")).join("|"),
+    [steps]
+  );
+
+  useEffect(() => {
+    reactFlowRef.current?.fitView({ padding: 0.15, maxZoom: 1 });
+  }, [structureKey]);
 
   // ---------- Main flow ----------
 
@@ -447,6 +477,9 @@ export default function ProcessFlowBuilder({ steps, onChange, resetKey }: Props)
             data,
             draggable: false,
             selectable: false,
+            // Non-draggable, non-selectable nodes get `pointer-events: none` from XYFlow by
+            // default, which would swallow real mouse clicks on the input/buttons inside.
+            style: { pointerEvents: "all" },
           };
         }
         const data: BranchStepData = {
@@ -466,6 +499,7 @@ export default function ProcessFlowBuilder({ steps, onChange, resetKey }: Props)
           data,
           draggable: false,
           selectable: false,
+          style: { pointerEvents: "all" },
         };
       }),
     [
@@ -517,7 +551,9 @@ export default function ProcessFlowBuilder({ steps, onChange, resetKey }: Props)
           <div className="flow-empty">No steps yet — add the first one below.</div>
         ) : (
           <ReactFlow
-            key={resetKey}
+            onInit={(instance) => {
+              reactFlowRef.current = instance;
+            }}
             nodes={nodes}
             edges={edges}
             nodeTypes={nodeTypes}
@@ -529,13 +565,13 @@ export default function ProcessFlowBuilder({ steps, onChange, resetKey }: Props)
             zoomOnScroll={false}
             panOnScroll={false}
             deleteKeyCode={null}
-            minZoom={0.4}
+            minZoom={0.6}
             maxZoom={1.25}
             proOptions={{ hideAttribution: true }}
             onNodeDragStop={handleNodeDragStop}
           >
             <Background gap={18} color="var(--border)" />
-            <Controls showInteractive={false} position="bottom-right" />
+            <Controls showInteractive={false} position="top-right" />
           </ReactFlow>
         )}
       </div>

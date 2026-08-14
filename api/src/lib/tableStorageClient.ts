@@ -30,11 +30,7 @@ interface StoredEntity {
   rowKey: string;
   id: string;
   submittedAt: string;
-  status: string;
   intakeJson: string;
-  conversationJson: string;
-  recommendationJson: string;
-  pendingQuestionsJson: string;
 }
 
 function toEntity(submission: ProcessSubmission): StoredEntity {
@@ -43,11 +39,7 @@ function toEntity(submission: ProcessSubmission): StoredEntity {
     rowKey: toRowKey(submission.submittedAt),
     id: submission.id,
     submittedAt: submission.submittedAt,
-    status: submission.status,
     intakeJson: JSON.stringify(submission.intake),
-    conversationJson: JSON.stringify(submission.conversation),
-    recommendationJson: JSON.stringify(submission.recommendation),
-    pendingQuestionsJson: JSON.stringify(submission.pendingQuestions),
   };
 }
 
@@ -55,11 +47,7 @@ function fromEntity(entity: StoredEntity): ProcessSubmission {
   return {
     id: entity.id,
     submittedAt: entity.submittedAt,
-    status: entity.status as ProcessSubmission["status"],
     intake: JSON.parse(entity.intakeJson),
-    conversation: JSON.parse(entity.conversationJson),
-    recommendation: JSON.parse(entity.recommendationJson),
-    pendingQuestions: JSON.parse(entity.pendingQuestionsJson),
   };
 }
 

@@ -1,4 +1,19 @@
-// Number of follow-up rounds the model is allowed to ask for before it must
-// commit to a final recommendation. Shared by the real and mock recommendation
-// clients, and by the engine that enforces the cap.
-export const MAX_FOLLOWUP_ROUNDS = 2;
+import type { Frequency } from "../types/domain";
+
+export const FREQUENCY_PER_YEAR: Record<Frequency, number> = {
+  daily: 250,
+  weekly: 52,
+  monthly: 12,
+  quarterly: 4,
+  "ad-hoc": 12,
+};
+
+export function estimatedAnnualHours(
+  frequency: Frequency,
+  timeSpentPerOccurrenceMinutes: number,
+  numberOfPeopleInvolved: number
+): number {
+  const hours =
+    (FREQUENCY_PER_YEAR[frequency] * timeSpentPerOccurrenceMinutes * numberOfPeopleInvolved) / 60;
+  return Math.round(hours * 10) / 10;
+}

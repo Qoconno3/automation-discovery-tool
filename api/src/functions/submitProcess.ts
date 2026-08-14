@@ -1,10 +1,12 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { randomUUID } from "node:crypto";
-import { getRecommendation } from "../lib/recommendationEngine";
 import { upsertSubmission } from "../lib/tableStorageClient";
 import { ProcessIntake, ProcessSubmission } from "../types/domain";
 
 const REQUIRED_SCALAR_FIELDS: (keyof ProcessIntake)[] = [
+  "requesterName",
+  "requesterEmail",
+  "businessUnit",
   "title",
   "description",
   "currentTools",
@@ -77,26 +79,8 @@ export async function submitProcess(
   const submission: ProcessSubmission = {
     id: randomUUID(),
     submittedAt: new Date().toISOString(),
-    status: "awaiting_followup",
     intake: validated.intake,
-    conversation: [],
-    recommendation: null,
-    pendingQuestions: null,
   };
-
-  try {
-    const result = await getRecommendation(submission.intake, submission.conversation);
-    if (result.status === "needs_info") {
-      submission.status = "awaiting_followup";
-      submission.pendingQuestions = result.questions;
-    } else {
-      submission.status = "complete";
-      submission.recommendation = result.recommendation;
-    }
-  } catch (err) {
-    context.error("getRecommendation failed", err);
-    return { status: 502, jsonBody: { error: "Failed to generate a recommendation" } };
-  }
 
   try {
     await upsertSubmission(submission);

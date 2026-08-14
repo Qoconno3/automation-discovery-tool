@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { listSampleScenarios, submitProcess } from "../api/client";
-import type { SampleScenario } from "../api/client";
+import { submitProcess } from "../api/client";
 import ProcessFlowBuilder from "../components/ProcessFlowBuilder";
+import { estimatedAnnualHours } from "../lib/constants";
 import type {
   ChangeFrequency,
   DataSensitivity,
@@ -14,15 +14,10 @@ import type {
   Variability,
 } from "../types/domain";
 
-const FREQUENCY_PER_YEAR: Record<Frequency, number> = {
-  daily: 250,
-  weekly: 52,
-  monthly: 12,
-  quarterly: 4,
-  "ad-hoc": 12,
-};
-
 const EMPTY_INTAKE: ProcessIntake = {
+  requesterName: "",
+  requesterEmail: "",
+  businessUnit: "",
   title: "",
   description: "",
   currentTools: "",
@@ -61,22 +56,16 @@ export default function IntakeForm() {
   const [intake, setIntake] = useState<ProcessIntake>(EMPTY_INTAKE);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [scenarios, setScenarios] = useState<SampleScenario[]>([]);
-  const [flowResetKey, setFlowResetKey] = useState(0);
 
-  useEffect(() => {
-    listSampleScenarios()
-      .then(setScenarios)
-      .catch(() => setScenarios([])); // sample picker is optional UX; fail silently
-  }, []);
-
-  const estimatedAnnualHours = useMemo(() => {
-    const occurrencesPerYear = FREQUENCY_PER_YEAR[intake.frequency];
-    const hours =
-      (occurrencesPerYear * intake.timeSpentPerOccurrenceMinutes * intake.numberOfPeopleInvolved) /
-      60;
-    return Math.round(hours * 10) / 10;
-  }, [intake.frequency, intake.timeSpentPerOccurrenceMinutes, intake.numberOfPeopleInvolved]);
+  const annualHours = useMemo(
+    () =>
+      estimatedAnnualHours(
+        intake.frequency,
+        intake.timeSpentPerOccurrenceMinutes,
+        intake.numberOfPeopleInvolved
+      ),
+    [intake.frequency, intake.timeSpentPerOccurrenceMinutes, intake.numberOfPeopleInvolved]
+  );
 
   function update<K extends keyof ProcessIntake>(field: K, value: ProcessIntake[K]) {
     setIntake((prev) => ({ ...prev, [field]: value }));
@@ -105,30 +94,44 @@ export default function IntakeForm() {
     <form className="intake-form" onSubmit={handleSubmit}>
       <h1>Describe a process</h1>
       <p className="subtitle">
-        Tell us what the process does today. The more specific the steps and tools, the sharper the
-        recommendation.
+        Tell us what the process does today. The more specific the steps and tools, the easier it is
+        for us to prioritize and follow up with you.
       </p>
 
-      {scenarios.length > 0 && (
-        <div className="sample-picker">
-          <span className="sample-picker-label">Demo processes</span>
-          <div className="sample-picker-buttons">
-            {scenarios.map((s) => (
-              <button
-                key={s.label}
-                type="button"
-                className="sample-button"
-                onClick={() => {
-                  setIntake(s.intake);
-                  setFlowResetKey((k) => k + 1);
-                }}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      <fieldset>
+        <legend>Who's asking</legend>
+
+        <label>
+          Your name
+          <input
+            required
+            value={intake.requesterName}
+            onChange={(e) => update("requesterName", e.target.value)}
+            placeholder="e.g. Jamie Rivera"
+          />
+        </label>
+
+        <label>
+          Your email
+          <input
+            type="email"
+            required
+            value={intake.requesterEmail}
+            onChange={(e) => update("requesterEmail", e.target.value)}
+            placeholder="e.g. jamie.rivera@example.com"
+          />
+        </label>
+
+        <label>
+          Business unit / team
+          <input
+            required
+            value={intake.businessUnit}
+            onChange={(e) => update("businessUnit", e.target.value)}
+            placeholder="e.g. Accounts Payable"
+          />
+        </label>
+      </fieldset>
 
       <fieldset>
         <legend>The process</legend>
@@ -169,11 +172,7 @@ export default function IntakeForm() {
           <p className="flow-field-hint">
             Build the flow as a diagram — one box per step, in order. The bottleneck usually hides in here.
           </p>
-          <ProcessFlowBuilder
-            steps={intake.steps}
-            onChange={(steps) => update("steps", steps)}
-            resetKey={flowResetKey}
-          />
+          <ProcessFlowBuilder steps={intake.steps} onChange={(steps) => update("steps", steps)} />
         </div>
       </fieldset>
 
@@ -224,7 +223,7 @@ export default function IntakeForm() {
         </label>
 
         <p className="derived-stat">
-          Estimated annual time cost: <strong>{estimatedAnnualHours} hours/year</strong>
+          Estimated annual time cost: <strong>{annualHours} hours/year</strong>
         </p>
       </fieldset>
 
@@ -319,7 +318,7 @@ export default function IntakeForm() {
       {error && <p className="error">{error}</p>}
 
       <button type="submit" disabled={submitting}>
-        {submitting ? "Analyzing..." : "Get recommendation"}
+        {submitting ? "Submitting..." : "Submit to backlog"}
       </button>
     </form>
   );

@@ -21,6 +21,9 @@ export interface ProcessStep {
 }
 
 export interface ProcessIntake {
+  requesterName: string;
+  requesterEmail: string;
+  businessUnit: string;
   title: string;
   description: string;
   currentTools: string;
@@ -39,81 +42,8 @@ export interface ProcessIntake {
   urgency: Urgency;
 }
 
-export interface FollowupQuestion {
-  field: string;
-  question: string;
-  why: string;
-}
-
-export interface FollowupRound {
-  roundNumber: number;
-  questions: FollowupQuestion[];
-  answers: Record<string, string>;
-}
-
-export interface RecommendedTool {
-  tool: string;
-  role: string;
-  rationale: string;
-}
-
-export interface ModelGuidance {
-  tierNeeded: "none" | "small/cheap (e.g. gpt-4o-mini)" | "frontier (e.g. gpt-4o)";
-  reasoning: string;
-  estimatedTokenCostNotes: string;
-}
-
-export interface Risk {
-  risk: string;
-  severity: "low" | "medium" | "high";
-  mitigation: string;
-}
-
-export interface ProposedFlowStep {
-  label: string;
-  /** "automated" = no human effort required at this step in the new flow; "manual" = a human still does this. */
-  kind: "automated" | "manual";
-}
-
-export interface AutomationRecommendation {
-  scope: "skip" | "partial" | "full";
-  scopeRationale: string;
-  approach: "classic" | "ai" | "hybrid";
-  approachRationale: string;
-  /** 0-based index into the submitted intake.steps main-flow array (not a branch step); null unless scope is "partial". */
-  bottleneckStepIndex: number | null;
-  /** The process flow as it looks after applying this recommendation — a new sequence, not just the original steps relabeled. */
-  proposedFlow: ProposedFlowStep[];
-  recommendedTools: RecommendedTool[];
-  modelGuidance: ModelGuidance;
-  humanInTheLoopNeeded: boolean;
-  humanInTheLoopNotes: string;
-  risks: Risk[];
-  estimatedBuildEffort: "hours" | "days" | "weeks";
-  roiNotes: string;
-  confidence: "low" | "medium" | "high";
-  reasoning: string;
-}
-
-export type LlmResponse =
-  | {
-      status: "needs_info";
-      partialAssessment: string;
-      questions: FollowupQuestion[];
-    }
-  | {
-      status: "complete";
-      recommendation: AutomationRecommendation;
-    };
-
-export type SubmissionStatus = "awaiting_followup" | "complete";
-
 export interface ProcessSubmission {
   id: string;
   submittedAt: string;
-  status: SubmissionStatus;
   intake: ProcessIntake;
-  conversation: FollowupRound[];
-  recommendation: AutomationRecommendation | null;
-  pendingQuestions: FollowupQuestion[] | null;
 }
